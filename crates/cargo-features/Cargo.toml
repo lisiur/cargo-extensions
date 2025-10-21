@@ -2,6 +2,8 @@
 name = "cargo-features"
 version = "0.1.0"
 edition = "2024"
+description = "cargo features"
+license = "MIT"
 
 [dependencies]
 cargo_metadata = "0.23.0"
