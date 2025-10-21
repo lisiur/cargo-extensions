@@ -1,13 +1,13 @@
 [package]
-name = "cargo-extensions-features"
-version = "0.1.1"
+name = "cargo-extensions"
+version = "0.1.0"
 edition = "2024"
-description = "cargo features"
+description = "cargo extensions"
 license = "MIT"
 
 [[bin]]
 name = "cargo-features"
-path = "src/main.rs"
+path = "src/bin/features.rs"
 
 [dependencies]
 cargo_metadata = "0.23.0"

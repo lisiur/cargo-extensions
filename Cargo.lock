@@ -98,8 +98,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "cargo-extensions-features"
-version = "0.1.1"
+name = "cargo-extensions"
+version = "0.1.0"
 dependencies = [
  "cargo_metadata",
  "clap",
@@ -118,10 +118,6 @@ checksum = "122ec45a44b270afd1402f351b782c676b173e3c3fb28d86ff7ebfb4d86a4ee4"
 dependencies = [
  "serde",
 ]
-
-[[package]]
-name = "cargo-upgrade"
-version = "0.1.0"
 
 [[package]]
 name = "cargo_metadata"
