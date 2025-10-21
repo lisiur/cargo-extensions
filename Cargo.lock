@@ -98,7 +98,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "cargo-features"
+name = "cargo-extensions-features"
 version = "0.1.0"
 dependencies = [
  "cargo_metadata",

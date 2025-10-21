@@ -4,24 +4,33 @@ use color_eyre::Result;
 use colored::Colorize;
 
 use cargo_metadata::{Dependency, Metadata, MetadataCommand, Package};
-use clap::{Args, Parser};
+use clap::{Args, Parser, Subcommand};
 use nucleo_matcher::{Config, Matcher, pattern::Atom};
 use toml_edit::DocumentMut;
 
 #[derive(Parser)]
-#[command(version, about, long_about = None)]
+#[command(name = "cargo")]
+#[command(bin_name = "cargo")]
+#[command(arg_required_else_help = true)]
+#[command(version, about = None, long_about = None)]
 struct Cli {
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    Features(FeatuerArgs),
+}
+
+#[derive(Args)]
+struct FeatuerArgs {
     /// Workspace package name
     #[arg(short, long, value_name = "PACKAGE_NAME")]
     package: Option<String>,
 
     /// Dependency name
     dependency: Option<String>,
-}
-
-#[derive(Args)]
-struct ShowArgs {
-    name: Option<String>,
 }
 
 struct Feature {
@@ -196,49 +205,51 @@ fn main() -> Result<()> {
 
     let cli = Cli::parse();
 
-    let metadata = MetadataCommand::new().exec().unwrap();
+    if let Some(Commands::Features(args)) = cli.command {
+        let metadata = MetadataCommand::new().exec().unwrap();
 
-    let workspace_package = choose_workspace_package(&metadata, cli.package)?;
+        let workspace_package = choose_workspace_package(&metadata, args.package)?;
 
-    let dependency = choose_dependency(workspace_package, cli.dependency)?;
-    let dependency_name = dependency.name.as_str();
+        let dependency = choose_dependency(workspace_package, args.dependency)?;
+        let dependency_name = dependency.name.as_str();
 
-    let (uses_default_features, enabled_features) = choose_features(&metadata, dependency)?;
+        let (uses_default_features, enabled_features) = choose_features(&metadata, dependency)?;
 
-    let toml_path = &workspace_package.manifest_path;
-    let toml_plaintext = fs::read_to_string(toml_path)?;
-    let mut doc = toml_plaintext.parse::<DocumentMut>()?;
+        let toml_path = &workspace_package.manifest_path;
+        let toml_plaintext = fs::read_to_string(toml_path)?;
+        let mut doc = toml_plaintext.parse::<DocumentMut>()?;
 
-    let mut array = toml_edit::Array::default();
-    enabled_features.iter().for_each(|f| {
-        array.push(f);
-    });
+        let mut array = toml_edit::Array::default();
+        enabled_features.iter().for_each(|f| {
+            array.push(f);
+        });
 
-    let version = dependency
-        .req
-        .to_string()
-        .trim_start_matches('^')
-        .to_owned();
+        let version = dependency
+            .req
+            .to_string()
+            .trim_start_matches('^')
+            .to_owned();
 
-    if uses_default_features && array.is_empty() {
-        // only declar version
-        doc["dependencies"][dependency_name] = toml_edit::value(version);
-    } else {
-        // use inline table
-        doc["dependencies"][dependency_name] = toml_edit::value(toml_edit::InlineTable::new());
-        // set version
-        doc["dependencies"][dependency_name]["version"] = toml_edit::value(version);
-        if !uses_default_features {
-            // set default-features
-            doc["dependencies"][dependency_name]["default-features"] = toml_edit::value(false);
+        if uses_default_features && array.is_empty() {
+            // only declar version
+            doc["dependencies"][dependency_name] = toml_edit::value(version);
+        } else {
+            // use inline table
+            doc["dependencies"][dependency_name] = toml_edit::value(toml_edit::InlineTable::new());
+            // set version
+            doc["dependencies"][dependency_name]["version"] = toml_edit::value(version);
+            if !uses_default_features {
+                // set default-features
+                doc["dependencies"][dependency_name]["default-features"] = toml_edit::value(false);
+            }
+            if !array.is_empty() {
+                // set features
+                doc["dependencies"][dependency_name]["features"] = toml_edit::value(array);
+            }
         }
-        if !array.is_empty() {
-            // set features
-            doc["dependencies"][dependency_name]["features"] = toml_edit::value(array);
-        }
+
+        fs::write(toml_path, doc.to_string())?;
     }
-
-    fs::write(toml_path, doc.to_string())?;
 
     Ok(())
 }
