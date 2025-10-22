@@ -19,7 +19,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Manage workspace dependencies
+    /// Manage workspace dependency features
     Features(FeatureArgs),
 }
 
@@ -39,7 +39,7 @@ struct FeatureArgs {
 
 #[derive(Subcommand)]
 enum FeatureCommands {
-    /// List workspace dependencies
+    /// List workspace dependency features
     List(FeatureListArgs),
 }
 
