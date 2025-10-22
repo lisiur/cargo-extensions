@@ -12,7 +12,8 @@ Commands:
 Options:
   -p, --package <PACKAGE>        Workspace package name
   -d, --dependency <DEPENDENCY>  Dependency name
-  -h, --help                     Print help```
+  -h, --help                     Print help
+```
 
 cargo features list --help
 
