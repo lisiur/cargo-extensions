@@ -10,9 +10,9 @@ name = "cargo-features"
 path = "src/bin/features.rs"
 
 [dependencies]
+anyhow = "1.0.100"
 cargo_metadata = "0.23.0"
 clap = { version = "^4.5.49", features = ["derive"] }
-color-eyre = "0.6.5"
 colored = "3.0.0"
 inquire = "0.9.1"
 nucleo-matcher = "0.3.1"
