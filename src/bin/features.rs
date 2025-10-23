@@ -8,8 +8,8 @@ use nucleo_matcher::{Config, Matcher, pattern::Atom};
 use toml_edit::DocumentMut;
 
 #[derive(Parser)]
-#[command(name = "cargo")]
 #[command(bin_name = "cargo")]
+#[command(styles = clap_cargo::style::CLAP_STYLING)]
 #[command(arg_required_else_help = true)]
 #[command(version, about = None, long_about = None)]
 struct Cli {
@@ -90,8 +90,6 @@ impl Display for Feature {
         )
     }
 }
-
-fn sort(list: Vec<String>) {}
 
 fn get_dependency_features(metadata: &Metadata, dependency: &Dependency) -> DependencyFeatures {
     let mut enabled_features = dependency.features.clone();
