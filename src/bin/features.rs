@@ -91,6 +91,8 @@ impl Display for Feature {
     }
 }
 
+fn sort(list: Vec<String>) {}
+
 fn get_dependency_features(metadata: &Metadata, dependency: &Dependency) -> DependencyFeatures {
     let mut enabled_features = dependency.features.clone();
 
@@ -193,6 +195,12 @@ fn choose_dependency(package: &Package, keyword: Option<String>) -> Result<&Depe
     let dependencies = &package.dependencies;
     let select_dependencies_options: Vec<&str> =
         dependencies.iter().map(|x| x.name.as_str()).collect();
+
+    if select_dependencies_options.is_empty() {
+        println!("No dependencies found.");
+        process::exit(0);
+    }
+
     let ans = match keyword {
         Some(keyword) => {
             let matches = fuzzy_match(&select_dependencies_options, &keyword);
@@ -224,6 +232,11 @@ fn choose_features(metadata: &Metadata, dependency: &Dependency) -> Result<Depen
     let mut dependency_features = get_dependency_features(metadata, dependency);
 
     let toggle_features_options = dependency_features.features.iter().collect::<Vec<_>>();
+
+    if toggle_features_options.is_empty() {
+        println!("No features found.");
+        process::exit(0);
+    }
 
     let default_index = toggle_features_options
         .iter()
